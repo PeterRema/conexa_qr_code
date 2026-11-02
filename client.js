@@ -1,11 +1,11 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.117.3';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
 import { POLLS } from './polls.js';
 
 const $ = id => document.getElementById(id);
 const configured = !SUPABASE_URL.includes('YOUR_PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR_');
 const sessionId = new URLSearchParams(location.search).get('session');
-let db, session, poll, step = 0, choices = [null,null,null], participantId, liveChannel, saving = false;
+let db, session, poll, step = 0, choices = [null,null,null], participantId, liveChannel, saving = false, resultsTimer = null;
 const draftKey = `conexa-draft-${sessionId}`, voteKey = `conexa-vote-${sessionId}`;
 
 start();
@@ -17,6 +17,13 @@ async function start() {
   const { data, error } = await db.from('poll_sessions').select('id,poll_slug,status').eq('id', sessionId).single();
   if (error || !data) return fatal('Questa sessione non è disponibile. Chiedi all’organizzatore un nuovo QR code.');
   session = data; poll = POLLS.find(item => item.slug === session.poll_slug);
+  if (!poll) {
+    const { data: custom } = await db.from('poll_catalog').select('slug,title,questions').eq('slug', session.poll_slug).single();
+    if (custom?.title && Array.isArray(custom.questions) && custom.questions.length === 3
+        && custom.questions.every(q => typeof q?.text === 'string' && Array.isArray(q.options))) {
+      poll = { slug: custom.slug, name: custom.title, questions: custom.questions.map(q => [q.text, q.options]) };
+    }
+  }
   if (!poll) return fatal('Non riconosco questo sondaggio.');
   $('headline').textContent = poll.name;
   $('lead').textContent = 'Partecipa al confronto. Puoi rivedere e cambiare le tue scelte prima di inviare.';
@@ -36,7 +43,7 @@ async function start() {
     renderQuestion();
   }
   liveChannel = db.channel(`client-${sessionId}`)
-    .on('postgres_changes', { event:'*', schema:'public', table:'response_counts', filter:`session_id=eq.${sessionId}` }, loadResults)
+    .on('postgres_changes', { event:'*', schema:'public', table:'response_counts', filter:`session_id=eq.${sessionId}` }, scheduleResults)
     .on('postgres_changes', { event:'UPDATE', schema:'public', table:'poll_sessions', filter:`id=eq.${sessionId}` }, async payload => {
       session.status = payload.new.status;
       if (session.status === 'closed' && !$('report').classList.contains('hidden')) return;
@@ -92,6 +99,13 @@ async function showFinal(received) {
   if (!received) { $('headline').textContent='Risultati della sala'; $('lead').textContent='Ecco come ha risposto il pubblico.'; }
   $('privacy').textContent='Risultati aggregati · aggiornati in tempo reale';
   await loadResults();
+}
+
+// Con molti telefoni in sala ogni voto arriva a tutti: si raggruppano gli aggiornamenti
+// e si distribuiscono nel tempo (0,8–2 s) per non far rileggere il database a tutti insieme.
+function scheduleResults() {
+  if (resultsTimer || $('report').classList.contains('hidden')) return;
+  resultsTimer = setTimeout(async () => { resultsTimer = null; await loadResults(); }, 800 + Math.random() * 1200);
 }
 
 async function loadResults() {
