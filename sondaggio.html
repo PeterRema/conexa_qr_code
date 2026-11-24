@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080a20">
+<title>Conexa 2026 · Sondaggio</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--bg:#080a20;--line:#a0b1ff24;--muted:#9ba3c6;--white:#f5f6ff;--cyan:#57d9ff;--green:#53e1b7;--red:#ff456d;--amber:#f6bd54}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;background:radial-gradient(ellipse at 85% 0,#364aff30,transparent 38%),radial-gradient(ellipse at 10% 100%,#ff315519,transparent 40%),var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;overflow:hidden}
+.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:clamp(14px,2vw,26px) clamp(18px,3vw,44px) 0}
+.brand{display:flex;align-items:center;gap:11px;font:700 clamp(14px,1.2vw,18px) 'Space Grotesk'}.mark{height:34px;width:34px;border:1px solid #57d9ff77;border-radius:10px;display:grid;place-items:center;color:var(--cyan);box-shadow:0 0 18px #24bfff38}.brand span{color:var(--cyan)}
+.meta{display:flex;align-items:center;gap:14px}
+.state{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:clamp(11px,.9vw,14px);color:#c3c9e2}
+.state i{width:9px;height:9px;border-radius:50%;background:#8390b3}
+.state.open{border-color:#53e1b755;color:#b5f6e3}.state.open i{background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 1.4s infinite}
+.state.closed{border-color:#f6bd5455;color:#ffe2a8}.state.closed i{background:var(--amber)}
+@keyframes pulse{50%{opacity:.35}}
+.count{font:600 clamp(22px,2.2vw,36px) 'Space Grotesk';font-variant-numeric:tabular-nums}.count small{display:block;font:500 clamp(9px,.7vw,11px) 'DM Sans';color:var(--muted);letter-spacing:.08em;text-transform:uppercase;text-align:right}
+h1{font:600 clamp(26px,3.2vw,52px)/1.1 'Space Grotesk';letter-spacing:-.035em;margin:clamp(10px,1.4vw,20px) clamp(18px,3vw,44px) clamp(14px,1.8vw,26px);overflow-wrap:anywhere}
+.stage{flex:1;min-height:0;display:grid;grid-template-columns:minmax(240px,28vw) minmax(0,1fr);gap:clamp(16px,2.4vw,40px);padding:0 clamp(18px,3vw,44px) clamp(16px,2vw,30px)}
+.join{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(160deg,#191c40ee,#10122dee);padding:clamp(16px,2vw,30px);min-height:0}
+.join-title{font:600 clamp(16px,1.6vw,26px) 'Space Grotesk';text-align:center}
+.qr{background:#fff;border-radius:16px;padding:clamp(10px,1vw,16px);width:100%;max-width:min(26vw,52vh);aspect-ratio:1;display:grid;place-items:center}
+.qr canvas{width:100%!important;height:auto!important;display:block}
+.join-url{font-size:clamp(11px,.95vw,15px);color:#aeb9e6;text-align:center;overflow-wrap:anywhere;line-height:1.45}
+.results{min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr));align-content:start;gap:clamp(12px,1.4vw,22px);padding-right:6px;scroll-behavior:smooth}
+.q{border:1px solid var(--line);border-radius:18px;background:#ffffff05;padding:clamp(14px,1.4vw,22px)}
+.q-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tag{font-size:clamp(9px,.7vw,11px);letter-spacing:.12em;color:#bec3ff;border:1px solid #7d88ff42;background:#666aff13;border-radius:6px;padding:5px 8px}
+.tag.multi{color:#9fe9ff;border-color:#57d9ff44;background:#57d9ff10}
+.q h2{font:500 clamp(15px,1.35vw,22px)/1.35 'Space Grotesk';margin:0 0 14px;overflow-wrap:anywhere}
+.bars{display:grid;gap:10px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:end}
+.bar-label{font-size:clamp(12px,1vw,16px);line-height:1.35;color:#dce0f2;overflow-wrap:anywhere}
+.bar-pct{font:600 clamp(13px,1.1vw,18px) 'Space Grotesk';font-variant-numeric:tabular-nums;color:#e8ecff}
+.track{grid-column:1/-1;height:clamp(8px,.8vw,12px);border-radius:10px;background:#ffffff12;overflow:hidden}
+.fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#5965ff,#57d9ff);transition:width 1s cubic-bezier(.18,.75,.25,1)}
+.bar.best .fill{background:linear-gradient(90deg,#7860ff,#53e1b7);box-shadow:0 0 14px #53e1b744}
+.hidden-results .bars{display:none}
+.notice-card{grid-column:1/-1;border:1px dashed #57d9ff44;border-radius:18px;padding:clamp(20px,2.4vw,40px);text-align:center;color:#b8c4ec;font-size:clamp(14px,1.2vw,20px);line-height:1.5}
+.admin{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px clamp(18px,3vw,44px);border-top:1px solid var(--line);background:#060817d9}
+.admin .label{font-size:10px;letter-spacing:.14em;color:#8b95bd;margin-right:6px}
+.btn{border:1px solid var(--line);border-radius:9px;background:#ffffff08;color:var(--white);padding:9px 13px;font:600 12px 'DM Sans';cursor:pointer;text-decoration:none}
+.btn:hover{background:#ffffff14}.btn:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{border:0;background:linear-gradient(100deg,#436bff,#7257f8)}.btn.danger{color:#ffb3c2;border-color:#ff456d55}
+.spacer{flex:1}
+.login-link{font-size:11px;color:#8b95bd}.login-link a{color:#9fe9ff}
+.toast{position:fixed;bottom:70px;left:50%;transform:translate(-50%,12px);padding:10px 14px;background:#202650;border:1px solid #6d7fff66;border-radius:9px;font-size:12px;opacity:0;transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}
+@media(max-width:860px){body{overflow:auto}.stage{grid-template-columns:1fr}.qr{max-width:280px}.results{overflow:visible}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="mark">◈</div><div>CONEXA<span>·</span>LIVE</div></div>
+  <div class="meta"><div class="state" id="state"><i></i><span id="stateText">Caricamento…</span></div><div class="count"><span id="count">0</span><small>partecipanti</small></div></div>
+</header>
+<h1 id="title">Conexa 2026</h1>
+<main class="stage">
+  <section class="join"><div class="join-title">Inquadra e vota</div><div class="qr" id="qr"></div><div class="join-url" id="joinUrl"></div></section>
+  <section class="results" id="results"></section>
+</main>
+<footer class="admin hidden" id="admin">
+  <span class="label">COMANDI</span>
+  <button class="btn primary" id="btnStart">Avvia votazione</button>
+  <button class="btn" id="btnClose">Chiudi votazione</button>
+  <button class="btn danger" id="btnReset">Azzera e riapri</button>
+  <span class="spacer"></span>
+  <button class="btn" id="btnToggle" title="Tasto R">Nascondi risultati</button>
+  <button class="btn" id="btnFull" title="Tasto F">Schermo intero</button>
+  <a class="btn" href="./index.html" target="_blank" rel="noopener">Gestione ↗</a>
+</footer>
+<div class="admin hidden" id="guest"><span class="login-link">Comandi disponibili dopo l’accesso nella <a href="./index.html" target="_blank" rel="noopener">pagina di gestione</a>.</span><span class="spacer"></span><button class="btn" id="btnToggleGuest" title="Tasto R">Nascondi risultati</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="./sondaggio.js"></script>
+</body>
+</html>
